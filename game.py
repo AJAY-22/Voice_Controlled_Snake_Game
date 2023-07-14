@@ -4,6 +4,9 @@ from enum import Enum
 from collections import namedtuple
 import numpy as np
 
+from mainloop import predict_mic
+from mainloop import terminate
+
 pygame.init()
 font = pygame.font.Font('arial.ttf', 25)
 #font = pygame.font.SysFont('arial', 25)
@@ -30,7 +33,7 @@ BLUE2 = (0, 100, 255)
 BLACK = (0,0,0)
 
 BLOCK_SIZE = 20
-SPEED = 20
+SPEED = 5
 
 class SnakeGameAI:
     my_SPEED = SPEED
@@ -75,6 +78,22 @@ class SnakeGameAI:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    command = predict_mic()
+                    final_move = [0, 0, 0, 0]
+                    if command == "right":
+                        final_move = [1, 0, 0, 0]
+                    if command == "down":
+                        final_move = [0, 1, 0, 0]
+                    if command == "left":
+                        final_move = [0, 0, 1, 0]
+                    if command == "up":
+                        final_move = [0, 0, 0, 1]
+                    if command == "stop":
+                        self.quit()
+                        terminate()
+                    action = final_move
             
         # 2. move
         self._move(action) # update the head
@@ -158,4 +177,10 @@ class SnakeGameAI:
         
     def quit(self):
         pygame.quit()
-            
+
+if __name__ == "__main__":
+    game = SnakeGameAI()
+    while True:
+        _, go, _ = game.play_step([0, 0, 0, 0])
+        if go:
+            game.reset()
